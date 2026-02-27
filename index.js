@@ -13,6 +13,7 @@ const app = express();
 
 app.use(cors({
   origin: process.env.FRONTEND_URL, // Your Frontend URL
+  methods: ["GET" , "POST" ,"PUT" , "DELETE"] ,
   credentials: true,               // Required for cookies/session
   
 }));
