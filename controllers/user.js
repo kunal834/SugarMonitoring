@@ -12,7 +12,7 @@ export const login = async (req, res) => {
   try{
  // Create a 15-minute magic token
   const magicToken = jwt.sign({ email , name , age }, process.env.JWT_SECRET, { expiresIn: '15m' });
-  const magicLink = `${process.env.BACKEND_URL}/api/users/verify?token=${magicToken}`;
+  const magicLink = `${process.env.FRONTEND_URL}/api/users/verify?token=${magicToken}`;
  
   // Email Configuration (Nodemailer)
   const transporter = nodemailer.createTransport({
