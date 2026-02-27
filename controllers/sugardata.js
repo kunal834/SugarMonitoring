@@ -41,4 +41,29 @@ export const filldata = async(req , res) =>{
         });
     }
 
-}
+}   
+export const fetchsugardata = async (req, res) => {
+    try {
+        // 1. Get the userId from the request (sent by your auth middleware)
+        // OR from the request parameters if you pass it from the frontend
+        const userId = req.user._id; 
+
+        // 2. Only find logs belonging to THIS user
+        // .sort({ entryDate: -1 }) ensures newest readings appear first
+        const data = await SugarLog.find({ userId }).sort({ entryDate: -1 });
+
+        res.status(200).json({
+            success: true,
+            message: "Data fetched successfully",
+            logs: data
+        });
+
+    } catch (error) {
+        console.error("Fetch Error:", error);
+        res.status(500).json({
+            success: false,
+            message: "Internal Server Error",
+            error: error.message
+        });
+    }
+};

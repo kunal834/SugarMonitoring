@@ -7,13 +7,12 @@ const schema = new mongoose.Schema({
         required: [true, "Email is required"],
         unique: true,
         lowercase: true,
-        match: [/\S+@\S+\.\S+/, 'is invalid']
+        match: [/\S+@\S+\.\S+/, 'is invalid'],
+        unique:true
     },
     // REMOVE 'required' from these for now
     name: { type: String, trim: true }, 
     age: { type: Number },
-
-
     isVerified: { type: Boolean, default: false }
 }, { timestamps: true });
 

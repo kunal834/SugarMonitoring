@@ -4,11 +4,18 @@ import userRouter from "./routes/user.js";
 import sugarroute from "./routes/sugar.js"
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
+import cors from "cors"
 
 
 dotenv.config();
 const Port = 5000;
 const app = express();
+
+app.use(cors({
+  origin: process.env.FRONTEND_URL, // Your Frontend URL
+  credentials: true,               // Required for cookies/session
+  
+}));
 app.use(cookieParser()); // To parse cookies here and there 
 app.use(express.json()) // use to read json data
 connectDB();
