@@ -15,10 +15,15 @@ export const login = async (req, res) => {
   const magicLink = `${process.env.FRONTEND_URL}/api/users/verify?token=${magicToken}`;
  
   // Email Configuration (Nodemailer)
-  const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
-  });
+const transporter = nodemailer.createTransport({
+  host: "smtp.gmail.com",
+  port: 465, // Use 465 for SSL
+  secure: true, // true for 465, false for other ports
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS, // 16-character App Password
+  },
+});
 
   await transporter.sendMail({
     to: email,  
