@@ -16,27 +16,27 @@ export const login = async (req, res) => {
  
   // Email Configuration (Nodemailer)
 const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 465, // Use 465 for SSL
-  secure: true, // true for 465, false for other ports
+  service: "gmail", // Let nodemailer handle the host/port/secure settings
   auth: {
     user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS, // 16-character App Password
+    pass: process.env.EMAIL_PASS, // Ensure this is a 16-character App Password
   },
+  tls: {
+    rejectUnauthorized: false // Helps prevent SSL handshake failures on cloud servers
+  }
 });
-
   await transporter.sendMail({
     to: email,  
     subject: 'Login to SugarTrack',
     html: `<p>Click <a href="${magicLink}">here</a> to log in. Link expires in 15 mins.</p>`
   });
 
-  res.json({ 
+  return  res.json({ 
     message: "Magic link sent!" ,
     success: true,
     user : name
   });
-  return res.redirect(`${process.env.FRONTEND_URL}/`);
+ 
   }catch(error){
   return res.status(500).json({ // Added return and status code
       success: false,
