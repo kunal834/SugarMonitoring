@@ -12,7 +12,7 @@ export const login = async (req, res) => {
   try{
  // Create a 15-minute magic token
   const magicToken = jwt.sign({ email , name , age }, process.env.JWT_SECRET, { expiresIn: '15m' });
-  const magicLink = `${process.env.FRONTEND_URL}/api/users/verify?token=${magicToken}`;
+  const magicLink = `${process.env.BACKEND_URL}/api/users/verify?token=${magicToken}`;
  
   // Email Configuration (Nodemailer)
 const transporter = nodemailer.createTransport({
@@ -31,7 +31,7 @@ const transporter = nodemailer.createTransport({
     html: `<p>Click <a href="${magicLink}">here</a> to log in. Link expires in 15 mins.</p>`
   });
 
-  return  res.json({ 
+  return res.json({ 
     message: "Magic link sent!" ,
     success: true,
     user : name
@@ -69,17 +69,18 @@ export const verify = async (req, res) => {
       await user.save();
     }
 
+    
     const sessionToken = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '30d' });
-
+    
     res.cookie('session', sessionToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      // secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       maxAge: 30 * 24 * 60 * 60 * 1000
     });
-
+    
     // 4. Redirect the browser to your dashboard
-    return res.redirect(`${process.env.FRONTEND_URL}/Dashboard`);
+ return  res.redirect(`${process.env.FRONTEND_URL}/`);
 
   } catch (err) {
     return res.status(401).send("Invalid or expired link.");
@@ -95,6 +96,11 @@ export const logout = async (req , res)  =>{
     secure: process.env.NODE_ENV === "Development"? false :"none"}).json({
     success : true,
     message: "logout successfully "
+    })
+
+    res.json({
+      success: true,
+      message : "user logout Successfully"
     })
 
   
@@ -114,7 +120,7 @@ export const mydetails = async(req , res) =>{
     })
   }
 
-  res.json({
+ return res.json({
     success: true , 
     message : "fetched user successfully",
     user: user
