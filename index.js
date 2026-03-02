@@ -8,7 +8,7 @@ import cors from "cors"
 
 
 dotenv.config();
-const Port = 5000;
+const Port = process.env.PORT || 5000;
 const app = express();
 
 app.use(cors({
@@ -26,6 +26,6 @@ app.use("/api/users" , userRouter);
 app.use("/api/sugar" , sugarroute);
 
 
-app.listen(Port , () =>{
-    console.log(`server is running on ${Port}`)
-} );
+app.listen(Port, "0.0.0.0", () => {
+  console.log(`Server is running on port ${Port}`);
+});

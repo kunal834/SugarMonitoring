@@ -72,12 +72,12 @@ export const verify = async (req, res) => {
     
     const sessionToken = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '30d' });
     
-    res.cookie('session', sessionToken, {
-      httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 30 * 24 * 60 * 60 * 1000
-    });
+ res.cookie('session', sessionToken, {
+  httpOnly: true,
+  secure: true,      // Must be true for 'none' to work
+  sameSite: 'none',  // This is what allows the cookie to work in production
+  maxAge: 30 * 24 * 60 * 60 * 1000
+});
     
     // 4. Redirect the browser to your dashboard
  return  res.redirect(`${process.env.FRONTEND_URL}/`);
