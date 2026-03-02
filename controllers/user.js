@@ -74,7 +74,7 @@ export const verify = async (req, res) => {
     
     res.cookie('session', sessionToken, {
       httpOnly: true,
-      // secure: process.env.NODE_ENV === 'production',
+    secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       maxAge: 30 * 24 * 60 * 60 * 1000
     });
