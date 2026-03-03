@@ -90,7 +90,7 @@ export const verify = async (req, res) => {
 export const logout = async (req , res)  =>{
     
     try{
- res.status(200).cookie("session"  , "" , 
+     res.status(200).cookie("session"  , "" , 
     {expires : new Date(Date.now()) , 
     sameSite: process.env.NODE_ENV === "Development"? "lax" :"none", // we have to add here also because we set a environment 
     secure: process.env.NODE_ENV === "Development"? false :"none"}).json({
@@ -98,10 +98,6 @@ export const logout = async (req , res)  =>{
     message: "logout successfully "
     })
 
-    res.json({
-      success: true,
-      message : "user logout Successfully"
-    })
 
   
     }catch(error){
