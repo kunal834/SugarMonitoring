@@ -16,14 +16,18 @@ export const login = async (req, res) => {
  
   // Email Configuration (Nodemailer)
 const transporter = nodemailer.createTransport({
-  service: "gmail", // Let nodemailer handle the host/port/secure settings
+  host: "smtp.gmail.com", // Use host instead of service for more control
+  port: 465,
+  secure: true,
   auth: {
     user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS, // Ensure this is a 16-character App Password
+    pass: process.env.EMAIL_PASS, 
   },
-  tls: {
-    rejectUnauthorized: false // Helps prevent SSL handshake failures on cloud servers
-  }
+  // THIS IS THE CRITICAL FIX for ENETUNREACH
+  connectionTimeout: 10000,
+  socketTimeout: 10000,
+  dnsTimeout: 10000,
+  family: 4 // Forces the connection to use IPv4 only
 });
   transporter.sendMail({
     to: email,  
