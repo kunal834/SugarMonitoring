@@ -25,7 +25,7 @@ const transporter = nodemailer.createTransport({
     rejectUnauthorized: false // Helps prevent SSL handshake failures on cloud servers
   }
 });
-  await transporter.sendMail({
+  transporter.sendMail({
     to: email,  
     subject: 'Login to SugarTrack',
     html: `<p>Click <a href="${magicLink}">here</a> to log in. Link expires in 15 mins.</p>`
