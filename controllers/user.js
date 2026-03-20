@@ -1,53 +1,47 @@
+
 import { usermodel } from "../models/User.js";
+
 import jwt from 'jsonwebtoken';
+
 import nodemailer from 'nodemailer';
 
 
+
+
+
 // Step 1: Send the Link
+
 export const login = async (req, res) => {
-  const { email , name , age } = req.body;
-  console.log("email:", req.body)
-  
-
-  try{
- // Create a 15-minute magic token
-  const magicToken = jwt.sign({ email , name , age }, process.env.JWT_SECRET, { expiresIn: '15m' });
-  const magicLink = `${process.env.BACKEND_URL}/api/users/verify?token=${magicToken}`;
- 
-  // Email Configuration (Nodemailer)
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com", // Use host instead of service for more control
-  port: 465,
-  secure: true,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS, 
-  },
-  // THIS IS THE CRITICAL FIX for ENETUNREACH
-  connectionTimeout: 10000,
-  socketTimeout: 10000,
-  dnsTimeout: 10000,
-  family: 4 // Forces the connection to use IPv4 only
-});
-  transporter.sendMail({
-    to: email,  
-    subject: 'Login to SugarTrack',
-    html: `<p>Click <a href="${magicLink}">here</a> to log in. Link expires in 15 mins.</p>`
-  });
-
-  return res.json({ 
-    message: "Magic link sent!" ,
-    success: true,
-    user : name
-  });
- 
-  }catch(error){
-  return res.status(500).json({ // Added return and status code
-      success: false,
-      message : error.message 
+  const { email, name, age } = req.body;
+  try {
+    const magicToken = jwt.sign({ email, name, age }, process.env.JWT_SECRET, { expiresIn: '15m' });
+    const magicLink = `${process.env.BACKEND_URL}/api/users/verify?token=${magicToken}`;
+    
+    console.log("Email to send" , email)
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS, // Ensure NO SPACES in Render dashboard
+      }
     });
+
+    // Remove 'await' here to prevent timeouts
+    transporter.sendMail({
+      to: email,
+      subject: 'Login to SugarTrack',
+      html: `<p>Click <a href="${magicLink}">here</a> to log in. Link expires in 15 mins.</p>`
+    }).catch(err => console.error("Email Error:", err)); // Log errors without crashing server
+
+    // Return immediately to un-hang the frontend
+    return res.status(200).json({ 
+      success: true, 
+      message: "Magic link is being sent!" ,
+      MagicToken : magicToken
+    });
+  } catch(error) {
+    return res.status(500).json({ success: false, message: error.message });
   }
- 
 };
 
 export const verify = async (req, res) => {
@@ -76,13 +70,14 @@ export const verify = async (req, res) => {
     
     const sessionToken = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '30d' });
     
- res.cookie('session', sessionToken, {
+
+  res.cookie('session', sessionToken, {
   httpOnly: true,
   secure: true,      // Must be true for 'none' to work
   sameSite: 'none',  // This is what allows the cookie to work in production
   maxAge: 30 * 24 * 60 * 60 * 1000
 });
-    
+   
     // 4. Redirect the browser to your dashboard
  return  res.redirect(`${process.env.FRONTEND_URL}/`);
 

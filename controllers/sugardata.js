@@ -1,4 +1,5 @@
 import  { SugarLog } from  "../models/Sugar.js"
+import {getSugarSummary , Monthlysummary , getContributionData} from "../services/pipelines.js"
 
 
 export const filldata = async(req , res) =>{
@@ -67,3 +68,60 @@ export const fetchsugardata = async (req, res) => {
         });
     }
 };
+
+export const SugarAnalysis = async(req , res) =>{
+    try{
+   const userId = req.user._id.toString();
+ const pipeline  = getSugarSummary(userId)
+ const data = await SugarLog.aggregate(pipeline);
+  console.log("Data Analysis" , data)
+  if(data){
+    res.json({
+        message: "Data Fetched",
+        success : true,
+        Analysis: data
+    })
+  }
+    }catch(error){
+        console.log(error.message)
+    }
+
+   
+}
+
+export const MonthAnal = async(req , res) =>{
+    try{
+     const userId = req.user._id.toString();
+ const pipeline  =   Monthlysummary(userId);
+ const data = await SugarLog.aggregate(pipeline);
+  console.log("Monthly Data" , data);
+  if(data){
+    res.json({
+        message: "Data Fetched",
+        success : true,
+        Analysis: data
+    })
+  }
+    }catch(error){
+ console.log(error.message)
+    }
+
+}
+
+export const contribution = async(req , res) =>{
+try{
+     const userId = req.user._id.toString();
+ const pipeline  =   getContributionData(userId);
+ const data = await SugarLog.aggregate(pipeline);
+  console.log("Monthly Data" , data);
+  if(data){
+    res.json({
+        message: "Data Fetched",
+        success : true,
+        Analysis: data
+    })
+  }
+    }catch(error){
+ console.log(error.message)
+    }
+}
