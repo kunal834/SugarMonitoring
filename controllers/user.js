@@ -27,7 +27,7 @@ export const login = async (req, res) => {
     });
 
     // Remove 'await' here to prevent timeouts
-    transporter.sendMail({
+    await transporter.sendMail({
       to: email,
       subject: 'Login to SugarTrack',
       html: `<p>Click <a href="${magicLink}">here</a> to log in. Link expires in 15 mins.</p>`
