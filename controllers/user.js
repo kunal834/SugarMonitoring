@@ -11,33 +11,33 @@ import nodemailer from 'nodemailer';
 
 // Step 1: Send the Link
 
+// Step 1: Send the Link
 export const login = async (req, res) => {
   const { email, name, age } = req.body;
   try {
     const magicToken = jwt.sign({ email, name, age }, process.env.JWT_SECRET, { expiresIn: '15m' });
     const magicLink = `${process.env.BACKEND_URL}/api/users/verify?token=${magicToken}`;
-    
-    console.log("Email to send" , email)
+
     const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS, // Ensure NO SPACES in Render dashboard
-      }
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: true,
+      auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
     });
 
-    // Remove 'await' here to prevent timeouts
-    await transporter.sendMail({
+    // CRITICAL FIX: Don't 'await' the email for the frontend response
+    transporter.sendMail({
       to: email,
       subject: 'Login to SugarTrack',
-      html: `<p>Click <a href="${magicLink}">here</a> to log in. Link expires in 15 mins.</p>`
-    }).catch(err => console.error("Email Error:", err)); // Log errors without crashing server
+      html: `<p>Click <a href="${magicLink}">here</a> to log in.</p>`
+    }).catch(err => console.error("Background Email Error:", err));
 
-    // Return immediately to un-hang the frontend
+    // Return immediately so the frontend "Loading" spinner disappears instantly
     return res.status(200).json({ 
       success: true, 
-      message: "Magic link is being sent!" ,
-      MagicToken : magicToken
+      message: "Check your email!", 
+      // For the demo: logging this link allows you to copy-paste it if the email is slow
+      debugLink: magicLink 
     });
   } catch(error) {
     return res.status(500).json({ success: false, message: error.message });
