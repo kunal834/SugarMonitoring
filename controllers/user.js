@@ -15,29 +15,18 @@ import nodemailer from 'nodemailer';
 export const login = async (req, res) => {
   const { email, name, age } = req.body;
   try {
+    // Keep the logic so the user is created in DB
     const magicToken = jwt.sign({ email, name, age }, process.env.JWT_SECRET, { expiresIn: '15m' });
-    const magicLink = `${process.env.BACKEND_URL}/api/users/verify?token=${magicToken}`;
+    
+    // LOG THE LINK to your terminal just in case
+    console.log("DEMO LINK:", `${process.env.BACKEND_URL}/api/users/verify?token=${magicToken}`);
 
-    const transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com",
-      port: 465,
-      secure: true,
-      auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
-    });
-
-    // CRITICAL FIX: Don't 'await' the email for the frontend response
-    transporter.sendMail({
-      to: email,
-      subject: 'Login to SugarTrack',
-      html: `<p>Click <a href="${magicLink}">here</a> to log in.</p>`
-    }).catch(err => console.error("Background Email Error:", err));
-
-    // Return immediately so the frontend "Loading" spinner disappears instantly
+    // IMMEDIATELY RETURN SUCCESS + THE TOKEN
+    // This allows your frontend to skip the "Check your email" screen
     return res.status(200).json({ 
       success: true, 
-      message: "Check your email!", 
-      // For the demo: logging this link allows you to copy-paste it if the email is slow
-      debugLink: magicLink 
+      message: "Demo Mode: Logging in...", 
+      magicToken: magicToken // Frontend can use this to redirect manually if needed
     });
   } catch(error) {
     return res.status(500).json({ success: false, message: error.message });
