@@ -5,33 +5,46 @@ import jwt from 'jsonwebtoken';
 
 import nodemailer from 'nodemailer';
 
-
+import 'dotenv/config'; // Add this at the very top
 
 
 
 // Step 1: Send the Link
 
-// Step 1: Send the Link
+import { Resend } from 'resend';
+
+const resend = new Resend(process.env.RESEND_API_KEY);
+
 export const login = async (req, res) => {
   const { email, name, age } = req.body;
   try {
-    // Keep the logic so the user is created in DB
     const magicToken = jwt.sign({ email, name, age }, process.env.JWT_SECRET, { expiresIn: '15m' });
-    
-    // LOG THE LINK to your terminal just in case
-    console.log("DEMO LINK:", `${process.env.BACKEND_URL}/api/users/verify?token=${magicToken}`);
+    const magicLink = `${process.env.BACKEND_URL}/api/users/verify?token=${magicToken}`;
 
-    // IMMEDIATELY RETURN SUCCESS + THE TOKEN
-    // This allows your frontend to skip the "Check your email" screen
+console.log("Attempting to send to:", email);
+
+const { data, error } = await resend.emails.send({
+  from: 'Flytics <onboarding@send.flytics.tech>', 
+  to: [email.trim()], // trim() removes accidental spaces
+  subject: 'Login to Flytics',
+  html: `<p>Click <a href="${magicLink}">here</a> to log in.</p>`,
+});
+
+if (error) {
+  console.error("Resend API Error:", error); // This will tell us the EXACT reason
+  return res.status(400).json({ success: false, error });
+}
+
     return res.status(200).json({ 
       success: true, 
-      message: "Demo Mode: Logging in...", 
-      magicToken: magicToken // Frontend can use this to redirect manually if needed
+      message: "Magic link sent via Resend!",
+      MagicToken: magicToken 
     });
   } catch(error) {
     return res.status(500).json({ success: false, message: error.message });
   }
 };
+
 
 export const verify = async (req, res) => {
   const { token } = req.query;
