@@ -1,8 +1,10 @@
 import  { SugarLog } from  "../models/Sugar.js"
 import {getSugarSummary , Monthlysummary , getContributionData} from "../services/pipelines.js"
+import { Request, Response } from "express";
+import { CustomRequest } from "../@types/authuserreq";
+// import { AuthUserRequest } from "../@types/authuseres.js";
 
-
-export const filldata = async(req : any, res : any ) =>{
+export const filldata = async(req : CustomRequest, res : Response ) =>{
     const user = req.user;
     console.log("user from middleware" , user);
     const { value, unit, context, notes } = req.body;
@@ -34,7 +36,7 @@ export const filldata = async(req : any, res : any ) =>{
             SugarData
         });
 
-    }catch(error){
+    }catch(error : any){
      res.status(500).json({
             success: false,
             message: "Error saving data",
@@ -43,7 +45,7 @@ export const filldata = async(req : any, res : any ) =>{
     }
 
 }   
-export const fetchsugardata = async (req : any, res : any) => {
+export const fetchsugardata = async (req : CustomRequest, res : Response) => {
     try {
         // 1. Get the userId from the request (sent by your auth middleware)
         // OR from the request parameters if you pass it from the frontend
@@ -59,7 +61,7 @@ export const fetchsugardata = async (req : any, res : any) => {
             logs: data
         });
 
-    } catch (error) {
+    } catch (error : any) {
         console.error("Fetch Error:", error);
         res.status(500).json({
             success: false,
@@ -69,7 +71,7 @@ export const fetchsugardata = async (req : any, res : any) => {
     }
 };
 
-export const SugarAnalysis = async(req : any, res : any) =>{
+export const SugarAnalysis = async(req : CustomRequest, res : Response) =>{
     try{
    const userId = req.user._id.toString();
  const pipeline  = getSugarSummary(userId)
@@ -82,14 +84,14 @@ export const SugarAnalysis = async(req : any, res : any) =>{
         Analysis: data
     })
   }
-    }catch(error){
+    }catch(error : any){
         console.log(error.message)
     }
 
    
 }
 
-export const MonthAnal = async(req : any, res : any) =>{
+export const MonthAnal = async(req : CustomRequest, res : Response) =>{
     try{
      const userId = req.user._id.toString();
  const pipeline  =   Monthlysummary(userId);
@@ -102,13 +104,13 @@ export const MonthAnal = async(req : any, res : any) =>{
         Analysis: data
     })
   }
-    }catch(error){
+    }catch(error : any){
  console.log(error.message)
     }
 
 }
 
-export const contribution = async(req : any, res : any) =>{
+export const contribution = async(req : CustomRequest, res : Response) =>{
 try{
      const userId = req.user._id.toString();
  const pipeline  =   getContributionData(userId);
@@ -121,7 +123,7 @@ try{
         Analysis: data
     })
   }
-    }catch(error : a){
+    }catch(error : any){
  console.log(error.message)
     }
 }
