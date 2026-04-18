@@ -2,7 +2,7 @@ import  { SugarLog } from  "../models/Sugar.js"
 import {getSugarSummary , Monthlysummary , getContributionData} from "../services/pipelines.js"
 
 
-export const filldata = async(req , res) =>{
+export const filldata = async(req : any, res : any ) =>{
     const user = req.user;
     console.log("user from middleware" , user);
     const { value, unit, context, notes } = req.body;
@@ -43,7 +43,7 @@ export const filldata = async(req , res) =>{
     }
 
 }   
-export const fetchsugardata = async (req, res) => {
+export const fetchsugardata = async (req : any, res : any) => {
     try {
         // 1. Get the userId from the request (sent by your auth middleware)
         // OR from the request parameters if you pass it from the frontend
@@ -69,7 +69,7 @@ export const fetchsugardata = async (req, res) => {
     }
 };
 
-export const SugarAnalysis = async(req , res) =>{
+export const SugarAnalysis = async(req : any, res : any) =>{
     try{
    const userId = req.user._id.toString();
  const pipeline  = getSugarSummary(userId)
@@ -89,7 +89,7 @@ export const SugarAnalysis = async(req , res) =>{
    
 }
 
-export const MonthAnal = async(req , res) =>{
+export const MonthAnal = async(req : any, res : any) =>{
     try{
      const userId = req.user._id.toString();
  const pipeline  =   Monthlysummary(userId);
@@ -108,7 +108,7 @@ export const MonthAnal = async(req , res) =>{
 
 }
 
-export const contribution = async(req , res) =>{
+export const contribution = async(req : any, res : any) =>{
 try{
      const userId = req.user._id.toString();
  const pipeline  =   getContributionData(userId);
@@ -121,7 +121,7 @@ try{
         Analysis: data
     })
   }
-    }catch(error){
+    }catch(error : a){
  console.log(error.message)
     }
 }
