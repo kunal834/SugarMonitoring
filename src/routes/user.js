@@ -1,7 +1,7 @@
 import express ,{ Router } from "express";
-import { login , verify , logout} from "../src/controllers/user.js";
-import { isAuthenticated } from "../src/middleware/auth.js";
-import { mydetails } from "../src/controllers/user.js";
+import { login , verify , logout} from "../controllers/user.js";
+import { isAuthenticated } from "../middleware/auth.js";
+import { mydetails } from "../controllers/user.js";
 
 const router = express.Router();
 

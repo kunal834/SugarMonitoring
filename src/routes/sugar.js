@@ -1,6 +1,6 @@
 import express ,{ Router } from "express";
-import { isAuthenticated } from "../src/middleware/auth.js";
-import { fetchsugardata, filldata, SugarAnalysis , MonthAnal , contribution } from "../src/controllers/sugardata.js";
+import { isAuthenticated } from "../middleware/auth.js";
+import { fetchsugardata, filldata, SugarAnalysis , MonthAnal , contribution } from "../controllers/sugardata.js";
 const router = express.Router();
  
 router.post("/fill" , isAuthenticated , filldata );
