@@ -1,7 +1,7 @@
 import express from "express"
-import { connectDB } from "./lib/Mongodb.js";
-import userRouter from "./routes/user.js";
-import sugarroute from "./routes/sugar.js"
+import { connectDB } from "./lib/Mongodb";
+import userRouter from "./routes/user";
+import sugarroute from "./routes/sugar"
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
 import cors from "cors"
