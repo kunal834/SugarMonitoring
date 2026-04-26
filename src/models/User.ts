@@ -16,7 +16,7 @@ const schema = new Schema<IUser>({
         unique: true,
         lowercase: true,
         match: [/\S+@\S+\.\S+/, 'is invalid'],
-        unique:true
+       
     },
     // REMOVE 'required' from these for now
     name: { type: String, trim: true }, 

@@ -3,27 +3,23 @@ import { usermodel } from "../models/User.js";
 
 import jwt from 'jsonwebtoken';
 
-import nodemailer from 'nodemailer';
-
 import 'dotenv/config'; // Add this at the very top
-
-
-
-// Step 1: Send the Link
-
+// Step 1: Send the Link  
 import { Resend } from 'resend';
-
+import type { Request, Response }  from "express";
+import type { CustomRequest } from "../types/authuserreq.js";
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-export const login = async (req, res) => {
+
+export const login = async (req: CustomRequest, res: Response) => {
   const { email, name, age } = req.body;
   try {
-    const magicToken = jwt.sign({ email, name, age }, process.env.JWT_SECRET, { expiresIn: '15m' });
+    const magicToken = jwt.sign({ email, name, age }, process.env.JWT_SECRET as string, { expiresIn: '15m' });
     const magicLink = `${process.env.BACKEND_URL}/api/users/verify?token=${magicToken}`;
 
 console.log("Attempting to send to:", email);
 
-const { data, error } = await resend.emails.send({
+const {error } = await resend.emails.send({
   from: 'Flytics <onboarding@send.flytics.tech>', 
   to: [email.trim()], // trim() removes accidental spaces
   subject: 'Login to Flytics',
@@ -40,17 +36,17 @@ if (error) {
       message: "Magic link sent via Resend!",
       MagicToken: magicToken 
     });
-  } catch(error) {
+  } catch(error : any) {
     return res.status(500).json({ success: false, message: error.message });
   }
 };
 
 
-export const verify = async (req, res) => {
+export const verify = async (req: CustomRequest, res: Response) => {
   const { token } = req.query;
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token as string, process.env.JWT_SECRET as string) as any;
     
     // 1. Check if user exists first
     let user = await usermodel.findOne({ email: decoded.email });
@@ -70,7 +66,7 @@ export const verify = async (req, res) => {
     }
 
     
-    const sessionToken = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '30d' });
+    const sessionToken = jwt.sign({ userId: user._id }, process.env.JWT_SECRET as string, { expiresIn: '30d' });
     
 
   res.cookie('session', sessionToken, {
@@ -88,13 +84,13 @@ export const verify = async (req, res) => {
   }
 };
 
-export const logout = async (req , res)  =>{
+export const logout = async (req: CustomRequest, res: Response) => {
     
     try{
      res.status(200).cookie("session"  , "" , 
     {expires : new Date(Date.now()) , 
     sameSite: process.env.NODE_ENV === "Development"? "lax" :"none", // we have to add here also because we set a environment 
-    secure: process.env.NODE_ENV === "Development"? false :"none"}).json({
+    secure: process.env.NODE_ENV === "Development"? false :true}).json({  // secure xcept to be boolean value and in development we set it to false because in development we are not using https and in production we are using https so we set it to true
     success : true,
     message: "logout successfully "
     })
@@ -106,7 +102,7 @@ export const logout = async (req , res)  =>{
     }
    
 }
-export const mydetails = async(req , res) =>{ 
+export const mydetails = async(req: CustomRequest, res: Response) =>{ 
   const user = req.user;
   console.log("user from middlewares" , user)
   if(!user){

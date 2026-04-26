@@ -50,3 +50,6 @@ Function,Purpose,Requires Secret Key?,Use When...
 @types folder in src folder 
 he types folder (often named interfaces or @types) is the "brain" of your TypeScript project. In JavaScript, you just hope the data is correct; in TypeScript, the types folder contains the definitions that enforce the data is correct.
 
+
+
+# We are using Types.ObjectId(userId) because in Pipeline.ts we are using Mongo d native driver it will not convert  string to object as it happens in Mongoose

@@ -1,7 +1,7 @@
-import { Request } from "express";
+import type { Request } from "express";
 interface AuthUser
 {
-     _id: string;
+     _id: any;
     name: string;
     email: string;
     isVerified: boolean;
@@ -11,5 +11,5 @@ interface AuthUser
 
 export interface CustomRequest extends Request
 {
-    user?: AuthUser
+    user?: AuthUser | null;
 }

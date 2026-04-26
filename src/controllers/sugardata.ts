@@ -1,8 +1,9 @@
 import  { SugarLog } from  "../models/Sugar.js"
 import {getSugarSummary , Monthlysummary , getContributionData} from "../services/pipelines.js"
-import { Request, Response } from "express";
-import { CustomRequest } from "../@types/authuserreq";
+import type { Request, Response } from "express";
+import type { CustomRequest } from "../types/authuserreq.js";
 // import { AuthUserRequest } from "../@types/authuseres.js";
+import type {PipelineStage} from "mongoose";
 
 export const filldata = async(req : CustomRequest, res : Response ) =>{
     const user = req.user;
@@ -74,7 +75,7 @@ export const fetchsugardata = async (req : CustomRequest, res : Response) => {
 export const SugarAnalysis = async(req : CustomRequest, res : Response) =>{
     try{
    const userId = req.user._id.toString();
- const pipeline  = getSugarSummary(userId)
+ const pipeline: PipelineStage[] = getSugarSummary(userId)
  const data = await SugarLog.aggregate(pipeline);
   console.log("Data Analysis" , data)
   if(data){
@@ -94,7 +95,7 @@ export const SugarAnalysis = async(req : CustomRequest, res : Response) =>{
 export const MonthAnal = async(req : CustomRequest, res : Response) =>{
     try{
      const userId = req.user._id.toString();
- const pipeline  =   Monthlysummary(userId);
+ const pipeline: PipelineStage[] =   Monthlysummary(userId);
  const data = await SugarLog.aggregate(pipeline);
   console.log("Monthly Data" , data);
   if(data){
@@ -113,7 +114,7 @@ export const MonthAnal = async(req : CustomRequest, res : Response) =>{
 export const contribution = async(req : CustomRequest, res : Response) =>{
 try{
      const userId = req.user._id.toString();
- const pipeline  =   getContributionData(userId);
+ const pipeline: PipelineStage[]  =   getContributionData(userId);
  const data = await SugarLog.aggregate(pipeline);
   console.log("Monthly Data" , data);
   if(data){
