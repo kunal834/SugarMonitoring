@@ -8,6 +8,9 @@ import nodemailer from 'nodemailer';
 import 'dotenv/config'; // Add this at the very top
 
 
+import { validateEvent } from '@polar-sh/sdk'; // Import the Polar SDK function to validate webhook events
+import Pay from '../models/Pay.js'; // Adjust the path to your schema file
+
 
 // Step 1: Send the Link
 
@@ -124,3 +127,54 @@ export const mydetails = async(req , res) =>{
   })
 
 }
+
+
+
+export const handlePolarPayment = async (req, res) => {
+  const webhookPayload = req.body;
+  const webhookSignature = req.headers['polar-webhook-signature'];
+  const webhookSecret = process.env.POLAR_WEBHOOK_SECRET;
+
+  try {
+    // 1. Verify the signature for health-data grade security
+    const event = validateEvent(webhookPayload, webhookSignature, webhookSecret);
+
+    // 2. Listen for the 'order.created' event (one-time purchase or donation)
+    if (event.type === 'order.created') {
+      const { data } = event;
+      
+      // Extract the Pay document ID you passed in Polar checkout metadata
+      const payRecordId = data.metadata?.pay_id; 
+      const amountInINR = data.amount / 100; // Polar provides amount in paise
+
+      if (!payRecordId) {
+        console.error('Critical: Metadata "pay_id" is missing.');
+        return res.status(400).send('Metadata Missing');
+      }
+
+      // 3. Update your Schema: Activate Digital Records
+      const updatedRecord = await Pay.findByIdAndUpdate(
+        payRecordId,
+        {
+          $set: {
+            isDigital: true,       // Replaces manual file negligence [cite: 7]
+            amountPaid: amountInINR,
+            updatedAt: new Date()
+          }
+        },
+        { new: true }
+      );
+
+      if (updatedRecord) {
+        console.log(`Success: ${updatedRecord.username} is now Digital. Paid: ₹${amountInINR}`);
+      }
+    }
+
+    // Acknowledge receipt to Polar
+    res.status(200).json({ received: true });
+
+  } catch (err) {
+    console.error('Webhook verification failed:', err.message);
+    res.status(401).send('Unauthorized');
+  }
+};
