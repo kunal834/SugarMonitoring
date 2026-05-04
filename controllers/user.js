@@ -8,8 +8,12 @@ import nodemailer from 'nodemailer';
 import 'dotenv/config'; // Add this at the very top
 
 
-import { validateEvent } from '@polar-sh/sdk'; // Import the Polar SDK function to validate webhook events
-import Pay from '../models/Pay.js'; // Adjust the path to your schema file
+import { Polar } from '@polar-sh/sdk';
+
+// Then you can access webhooks via the client or the dedicated helper
+// For validating webhooks specifically:
+import { validateEvent } from '@polar-sh/sdk/webhooks';
+import Pay from '../models/Pay.js';
 
 
 // Step 1: Send the Link
@@ -84,7 +88,7 @@ export const verify = async (req, res) => {
 });
    
     // 4. Redirect the browser to your dashboard
- return  res.redirect(`${process.env.FRONTEND_URL}/`);
+ return  res.redirect(`${process.env.FRONTEND_URL}/Addlog`);
 
   } catch (err) {
     return res.status(401).send("Invalid or expired link.");
@@ -130,51 +134,69 @@ export const mydetails = async(req , res) =>{
 
 
 
+
+const polar = new Polar({
+  accessToken: process.env.POLAR_ACCESS_TOKEN,
+  server: 'sandbox', 
+});
+
+// backend controller
+export const createCheckoutSession = async (req, res) => {
+  try {
+    const { amount, username } = req.body; 
+
+    const newPayRecord = await Pay.create({
+      username: username || "Anonymous",
+      amountPaid: 0,
+      isDigital: false
+    });
+
+    // Use the dynamic product creation format
+   const result = await polar.checkouts.create({
+  paymentProcessor: 'stripe',
+  successUrl: `${process.env.FRONTEND_URL}/success/?session_id={CHECKOUT_SESSION_ID}`,
+  // The SDK wants a list of Product ID strings here
+  products: ['5e306436-4470-486c-8659-3ba146b84e3c'], 
+  metadata: {
+    pay_id: newPayRecord._id.toString()
+  }
+});
+
+    res.status(200).json({ url: result.url });
+  } catch (err) {
+    console.error("SDK Error:", err);
+    res.status(500).json({ error: "Validation failed" });
+  }
+};
 export const handlePolarPayment = async (req, res) => {
-  const webhookPayload = req.body;
+  // 1. Webhooks MUST be validated using the RAW request body (string)
+  // If you use req.body (object), the signature check will fail.
+  const webhookPayload = JSON.stringify(req.body); 
   const webhookSignature = req.headers['polar-webhook-signature'];
   const webhookSecret = process.env.POLAR_WEBHOOK_SECRET;
 
   try {
-    // 1. Verify the signature for health-data grade security
+    // 2. Use the imported validateEvent helper directly
     const event = validateEvent(webhookPayload, webhookSignature, webhookSecret);
 
-    // 2. Listen for the 'order.created' event (one-time purchase or donation)
     if (event.type === 'order.created') {
-      const { data } = event;
+      const payRecordId = event.data.metadata?.pay_id;
       
-      // Extract the Pay document ID you passed in Polar checkout metadata
-      const payRecordId = data.metadata?.pay_id; 
-      const amountInINR = data.amount / 100; // Polar provides amount in paise
-
-      if (!payRecordId) {
-        console.error('Critical: Metadata "pay_id" is missing.');
-        return res.status(400).send('Metadata Missing');
-      }
-
-      // 3. Update your Schema: Activate Digital Records
-      const updatedRecord = await Pay.findByIdAndUpdate(
-        payRecordId,
-        {
-          $set: {
-            isDigital: true,       // Replaces manual file negligence [cite: 7]
-            amountPaid: amountInINR,
-            updatedAt: new Date()
-          }
-        },
-        { new: true }
-      );
-
-      if (updatedRecord) {
-        console.log(`Success: ${updatedRecord.username} is now Digital. Paid: ₹${amountInINR}`);
+      if (payRecordId) {
+        await Pay.findByIdAndUpdate(payRecordId, {
+          isDigital: true,
+          // Polar amounts are usually in cents
+          amountPaid: event.data.amount / 100, 
+          updatedAt: new Date()
+        });
+        
+        console.log(`B2B Activation Successful for ID: ${payRecordId}`);
       }
     }
-
-    // Acknowledge receipt to Polar
+    
     res.status(200).json({ received: true });
-
   } catch (err) {
-    console.error('Webhook verification failed:', err.message);
-    res.status(401).send('Unauthorized');
+    console.error('Webhook Verification Failed:', err.message);
+    res.status(401).send('Invalid Signature');
   }
 };
