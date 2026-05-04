@@ -150,13 +150,14 @@ export const createCheckoutSession = async (req, res) => {
       amountPaid: 0,
       isDigital: false
     });
-
+   
+    console.log("Created Pay Record:", newPayRecord);
     // Use the dynamic product creation format
    const result = await polar.checkouts.create({
   paymentProcessor: 'stripe',
   successUrl: `${process.env.FRONTEND_URL}/success/?session_id={CHECKOUT_SESSION_ID}`,
   // The SDK wants a list of Product ID strings here
-  products: ['5e306436-4470-486c-8659-3ba146b84e3c'], 
+  products: process.env.POLAR_PRODUCT_ID, 
   metadata: {
     pay_id: newPayRecord._id.toString()
   }
