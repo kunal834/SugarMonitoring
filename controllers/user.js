@@ -157,7 +157,7 @@ export const createCheckoutSession = async (req, res) => {
   paymentProcessor: 'stripe',
   successUrl: `${process.env.FRONTEND_URL}/success/?session_id={CHECKOUT_SESSION_ID}`,
   // The SDK wants a list of Product ID strings here
-  products: process.env.POLAR_PRODUCT_ID, 
+  products: [`${process.env.POLAR_PRODUCT_ID}`], 
   metadata: {
     pay_id: newPayRecord._id.toString()
   }
