@@ -136,8 +136,7 @@ export const mydetails = async(req , res) =>{
 
 
 const polar = new Polar({
-  accessToken: process.env.POLAR_ACCESS_TOKEN,
-  server: 'sandbox', 
+  accessToken: process.env.POLAR_ACCESS_TOKEN
 });
 
 // backend controller
