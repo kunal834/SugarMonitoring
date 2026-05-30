@@ -50,7 +50,7 @@ export const fetchsugardata = async (req : CustomRequest, res : Response) => {
     try {
         // 1. Get the userId from the request (sent by your auth middleware)
         // OR from the request parameters if you pass it from the frontend
-        const userId = req.user._id; 
+        const userId = req.user?._id; 
 
         // 2. Only find logs belonging to THIS user
         // .sort({ entryDate: -1 }) ensures newest readings appear first
@@ -74,7 +74,7 @@ export const fetchsugardata = async (req : CustomRequest, res : Response) => {
 
 export const SugarAnalysis = async(req : CustomRequest, res : Response) =>{
     try{
-   const userId = req.user._id.toString();
+   const userId = req.user?._id.toString();
  const pipeline: PipelineStage[] = getSugarSummary(userId)
  const data = await SugarLog.aggregate(pipeline);
   console.log("Data Analysis" , data)
@@ -94,7 +94,7 @@ export const SugarAnalysis = async(req : CustomRequest, res : Response) =>{
 
 export const MonthAnal = async(req : CustomRequest, res : Response) =>{
     try{
-     const userId = req.user._id.toString();
+     const userId = req.user?._id.toString();
  const pipeline: PipelineStage[] =   Monthlysummary(userId);
  const data = await SugarLog.aggregate(pipeline);
   console.log("Monthly Data" , data);
@@ -113,7 +113,7 @@ export const MonthAnal = async(req : CustomRequest, res : Response) =>{
 
 export const contribution = async(req : CustomRequest, res : Response) =>{
 try{
-     const userId = req.user._id.toString();
+     const userId = req.user?._id.toString();
  const pipeline: PipelineStage[]  =   getContributionData(userId);
  const data = await SugarLog.aggregate(pipeline);
   console.log("Monthly Data" , data);

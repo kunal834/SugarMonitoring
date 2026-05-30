@@ -11,7 +11,7 @@ import { Polar } from '@polar-sh/sdk';
 // Then you can access webhooks via the client or the dedicated helper
 // For validating webhooks specifically:
 import { validateEvent } from '@polar-sh/sdk/webhooks';
-import Pay from '../models/Pay';
+import Pay from '../models/Pay.js';
 
 
 // Step 1: Send the Link
@@ -175,12 +175,13 @@ export const createCheckoutSession = async (req: Request, res: Response): Promis
 
     // Initializing the checkout session using the official Polar SDK
     const result = await polar.checkouts.create({
-      paymentProcessor: 'stripe',
+    
       successUrl: `${process.env.FRONTEND_URL}/success/?session_id={CHECKOUT_SESSION_ID}`,
       products: [`${process.env.POLAR_PRODUCT_ID || ''}`], 
       metadata: {
         // Explicitly convert the Mongoose ObjectId into a clean string for the API metadata payload
-        pay_id: String(newPayRecord._id)
+        pay_id: String(newPayRecord._id),
+        paymentProcessor: 'stripe',
       }
     });
 
@@ -208,7 +209,7 @@ export const handlePolarPayment = async (req: Request, res: Response): Promise<v
 
   try {
     // Cryptographically confirm the payload integrity and assert our structured interface type
-    const event = validateEvent(webhookPayload, webhookSignature, webhookSecret) as PolarWebhookEvent;
+    const event = validateEvent(webhookPayload, { "polar-signature": webhookSignature }, webhookSecret) as PolarWebhookEvent;
 
     if (event.type === 'order.created') {
       const payRecordId = event.data.metadata?.pay_id;
