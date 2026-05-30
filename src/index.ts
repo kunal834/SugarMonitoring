@@ -8,6 +8,7 @@ import cors from "cors"
 
 
 dotenv.config();
+connectDB();
 const Port = process.env.PORT || 5000;
 const app = express();
 
@@ -19,13 +20,13 @@ app.use(cors({
 }));
 app.use(cookieParser()); // To parse cookies here and there 
 app.use(express.json()) // use to read json data
-connectDB();
+
 
 // middlewares 
 app.use("/api/users" , userRouter);
 app.use("/api/sugar" , sugarroute);
 
 
-app.listen(Port, "0.0.0.0", () => {
+app.listen(Number(Port), "0.0.0.0", () => {
   console.log(`Server is running on port ${Port}`);
 });

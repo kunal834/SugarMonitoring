@@ -1,6 +1,8 @@
-export const getSugarSummary = (userId) => [
+import type {PipelineStage} from "mongoose";
+import { Types } from "mongoose";
+export const getSugarSummary = (userId : string): PipelineStage[] => [
   {
-    $match: { userId: userId } 
+    $match: { userId: new Types.ObjectId(userId) } 
   },
   {
     $group: {
@@ -53,9 +55,9 @@ export const getSugarSummary = (userId) => [
   }
 ];
 
-export const Monthlysummary = (userId) => [
+export const Monthlysummary = (userId : string): PipelineStage[] => [
   {
-    $match: { userId: userId.toString() } 
+    $match: { userId: new Types.ObjectId(userId) } 
   },
   {
     $group: {
@@ -82,10 +84,10 @@ export const Monthlysummary = (userId) => [
   { $sort: { year: 1, month: 1 } }
 ];
 
-export const getContributionData = (userId) => [
+export const getContributionData = (userId : string): PipelineStage[] => [
   { 
     $match: { 
-      userId: userId.toString(),
+      userId: new Types.ObjectId(userId),
       // Usually, you only want the last 365 days for a heatmap
       entryDate: { $gte: new Date(new Date().setFullYear(new Date().getFullYear() - 1)) }
     } 

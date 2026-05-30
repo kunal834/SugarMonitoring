@@ -1,14 +1,22 @@
 // models/User.js
-import mongoose from "mongoose";
+import {Schema , model }from "mongoose";
 
-const schema = new mongoose.Schema({
+interface IUser {
+    email: string;
+    name?: string;
+    age?: number;
+    isVerified: boolean;
+    createdAt: Date;
+    updatedAt: Date;
+}
+const schema = new Schema<IUser>({
     email: {
         type: String,
         required: [true, "Email is required"],
         unique: true,
         lowercase: true,
         match: [/\S+@\S+\.\S+/, 'is invalid'],
-        unique:true
+       
     },
     // REMOVE 'required' from these for now
     name: { type: String, trim: true }, 
@@ -16,4 +24,4 @@ const schema = new mongoose.Schema({
     isVerified: { type: Boolean, default: false }
 }, { timestamps: true });
 
-export const usermodel = mongoose.model("User", schema);
+export const usermodel = model<IUser>("User", schema);

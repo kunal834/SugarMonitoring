@@ -1,8 +1,11 @@
 import  { SugarLog } from  "../models/Sugar.js"
 import {getSugarSummary , Monthlysummary , getContributionData} from "../services/pipelines.js"
+import type { Request, Response } from "express";
+import type { CustomRequest } from "../types/authuserreq.js";
+// import { AuthUserRequest } from "../@types/authuseres.js";
+import type {PipelineStage} from "mongoose";
 
-
-export const filldata = async(req , res) =>{
+export const filldata = async(req : CustomRequest, res : Response ) =>{
     const user = req.user;
     console.log("user from middleware" , user);
     const { value, unit, context, notes } = req.body;
@@ -34,7 +37,7 @@ export const filldata = async(req , res) =>{
             SugarData
         });
 
-    }catch(error){
+    }catch(error : any){
      res.status(500).json({
             success: false,
             message: "Error saving data",
@@ -43,7 +46,7 @@ export const filldata = async(req , res) =>{
     }
 
 }   
-export const fetchsugardata = async (req, res) => {
+export const fetchsugardata = async (req : CustomRequest, res : Response) => {
     try {
         // 1. Get the userId from the request (sent by your auth middleware)
         // OR from the request parameters if you pass it from the frontend
@@ -59,7 +62,7 @@ export const fetchsugardata = async (req, res) => {
             logs: data
         });
 
-    } catch (error) {
+    } catch (error : any) {
         console.error("Fetch Error:", error);
         res.status(500).json({
             success: false,
@@ -69,10 +72,10 @@ export const fetchsugardata = async (req, res) => {
     }
 };
 
-export const SugarAnalysis = async(req , res) =>{
+export const SugarAnalysis = async(req : CustomRequest, res : Response) =>{
     try{
    const userId = req.user._id.toString();
- const pipeline  = getSugarSummary(userId)
+ const pipeline: PipelineStage[] = getSugarSummary(userId)
  const data = await SugarLog.aggregate(pipeline);
   console.log("Data Analysis" , data)
   if(data){
@@ -82,17 +85,17 @@ export const SugarAnalysis = async(req , res) =>{
         Analysis: data
     })
   }
-    }catch(error){
+    }catch(error : any){
         console.log(error.message)
     }
 
    
 }
 
-export const MonthAnal = async(req , res) =>{
+export const MonthAnal = async(req : CustomRequest, res : Response) =>{
     try{
      const userId = req.user._id.toString();
- const pipeline  =   Monthlysummary(userId);
+ const pipeline: PipelineStage[] =   Monthlysummary(userId);
  const data = await SugarLog.aggregate(pipeline);
   console.log("Monthly Data" , data);
   if(data){
@@ -102,16 +105,16 @@ export const MonthAnal = async(req , res) =>{
         Analysis: data
     })
   }
-    }catch(error){
+    }catch(error : any){
  console.log(error.message)
     }
 
 }
 
-export const contribution = async(req , res) =>{
+export const contribution = async(req : CustomRequest, res : Response) =>{
 try{
      const userId = req.user._id.toString();
- const pipeline  =   getContributionData(userId);
+ const pipeline: PipelineStage[]  =   getContributionData(userId);
  const data = await SugarLog.aggregate(pipeline);
   console.log("Monthly Data" , data);
   if(data){
@@ -121,7 +124,7 @@ try{
         Analysis: data
     })
   }
-    }catch(error){
+    }catch(error : any){
  console.log(error.message)
     }
 }
